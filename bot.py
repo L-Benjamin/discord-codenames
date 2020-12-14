@@ -1,11 +1,11 @@
 if __name__ == "__main__":
     
-    import discord
+    from discord import Client, Game, Status
     from dotenv import load_dotenv
     from inspect import ismethod
     from os import getenv
 
-    from states.setup import Setup
+    from states.default import Default
 
     STATES = {}
     READY = False
@@ -13,51 +13,51 @@ if __name__ == "__main__":
     load_dotenv()
     token = getenv("DISCORD_TOKEN")
 
-    client = discord.Client()
+    client = Client()
 
     @client.event
     async def on_ready():
-        status = discord.Status.online
-        activity = discord.Game(name="Code Names")
+        status = Status.online
+        activity = Game(name = "Code Names")
 
         global STATES
-
         for guild in client.guilds:
-            STATES[guild] = Setup()
+            STATES[guild] = Default()
             await client.change_presence(status=status, activity=activity)
 
         global READY
         READY = True
 
-        print("--- bot is ready ---")
+        print("bot ready")
 
     @client.event
     async def on_message(msg):
         channel = msg.channel
+        content = msg.content
         user = msg.author
 
-        if msg.author == client.user:
+        if user == client.user:
             return
 
-        if msg.content[0] != "*":
+        if len(content) < 2 or content[0] != "*":
             return
 
         global READY
         if not READY:
-            await msg.channel.send("I am not ready yet, wait a bit more please!")
+            await channel.send("I am not ready yet, wait a bit more please!")
             return
 
         if not msg.guild:
-            await msg.channel.send("You can't use any commands in DMs")
+            await channel.send("You can't use any commands in DMs")
             return
 
-        if len(args := msg.content[1:].split(" ")) == 0:
+        if len(args := content[1:].split(" ")) == 0:
             return
 
         global STATES
         state = STATES[msg.guild]
 
-        if args[0] != "_" and ismethod(method := getattr(state, args[0])):
+        if args[0][0] != "_" and ismethod(method := getattr(state, args[0])):
             if newstate := await method(channel, user, args):
                 STATES[msg.guild] = newstate
         else:
