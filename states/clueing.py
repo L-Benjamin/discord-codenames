@@ -38,6 +38,7 @@ class Clueing(State):
 
         self.data.clue = args[1]
         self.data.nguess = n
+        self.data.turn += 1
         
         new_state = Guessing(self.data)
         await new_state.help(channel, None, None)
