@@ -57,7 +57,7 @@ if __name__ == "__main__":
         global STATES
         state = STATES[msg.guild]
 
-        if args[0][0] != "_" and ismethod(method := getattr(state, args[0])):
+        if args[0][0] != "_" and args[0] in dir(state) and ismethod(method := getattr(state, args[0])):
             if newstate := await method(channel, user, args):
                 STATES[msg.guild] = newstate
         else:

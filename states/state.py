@@ -1,5 +1,4 @@
 from .data import Data
-from .default import Default
 
 # Methods of State that don't start with an underscore must 
 # be async and take 4 arguments:
@@ -15,6 +14,7 @@ class State:
     def __init__(self, data = Data()):
         self.data = data
 
+    """
     async def exit(self, channel, user, args):
         if len(args) < 2 or args[1] != "confirm":
             await channel.send((
@@ -23,4 +23,5 @@ class State:
             ))
         else:
             await channel.send("Game terminated.")
-            return Default()
+            return None
+    """

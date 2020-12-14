@@ -1,4 +1,4 @@
-from states.joining import Joining
+from .joining import Joining
 from .state import State
 
 class Default(State):

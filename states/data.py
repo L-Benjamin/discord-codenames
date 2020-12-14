@@ -6,7 +6,9 @@ WORDS = [
     "k", "l", "m", "n", "o",
     "p", "q", "r", "s", "t",
     "u", "v", "w", "x", "y",
-].sort()
+]
+
+WORDS.sort()
 
 def _words_str(words):
     if len(words) < 5:
@@ -17,7 +19,7 @@ def _words_str(words):
     res = "```\n"
     for i, word in enumerate(words):
         x = i % 5
-        res += "{}{}{}".format(word, " " * (pads[x] - len(word), "\n" if x == 4 else " "))
+        res += "{}{}{}".format(word, " " * (pads[x] - len(word)), "\n" if x == 4 else " ")
     res += "\n```"
 
     return res
@@ -42,6 +44,9 @@ class Data:
         self.red_score = 0
         self.blue_score = 0
 
+        self.clue = None
+        self.nguess = None
+
     def words_str(self):
         return _words_str(self.words)
 
@@ -56,9 +61,27 @@ class Data:
 
     def players_str(self):
         player = lambda i: "{} {}".format(">" if i == self.turn else " ", self.players[i].display_name)
-        return "Red team:```\n{}\n{}\n```Blue team:```\n{}\n{}\n```".format(
-            player(0), player(1), player(2), player(3),
+        return "Red team ({}/8):```\n{}\n{}\n```Blue team ({}/8):```\n{}\n{}\n```".format(
+            self.red_score, player(0), player(1), self.blue_score, player(2), player(3),
         )
 
     def playing(self):
         return self.players[self.turn]
+
+    def lists(self):
+        ours = self.red_words
+        theirs = self.blue_words
+
+        if self.turn == 2:
+            ours, theirs = theirs, ours
+
+        return (ours, theirs)
+
+    def lists_str(self):
+        ours = self.red_words
+        theirs = self.blue_words
+
+        if self.turn == 2:
+            ours, theirs = theirs, ours
+
+        return (_words_str(ours), _words_str(theirs))

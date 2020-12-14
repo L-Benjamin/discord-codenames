@@ -3,11 +3,11 @@ from .state import State
 
 class Teaming(State):
     
-    async def help(self, channel, user, args):
+    async def help(self, channel, user, args):        
         await channel.send((
             "Waiting for someone to start the game with `*start`. You can also change teams with "
             "the command `*team change` to change or `*team switch` to switch role with your teammate.\n"
-            "Here is the current composition of the teams:\nRed team:\n```{}\n{}\n```Blue team:\n```{}\n{}\n```"
+            "Here is the current composition of the teams:\nRed team:\n```\n{}\n{}\n```Blue team:\n```\n{}\n{}\n```"
         ).format(
             self.data.players[0].display_name,
             self.data.players[1].display_name,
@@ -44,5 +44,7 @@ class Teaming(State):
             await channel.send("Invalid argument to `*team`, " + USAGE)
             return
 
-        self.data.players.index[i], self.data.players.index[j] = self.data.players.index[j], self.data.players.index[i]
+        self.data.players[i], self.data.players[j] = self.data.players[j], self.data.players[i]
+
+        await self.help(channel, None, None)
 
