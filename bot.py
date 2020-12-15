@@ -28,7 +28,7 @@ if __name__ == "__main__":
         global READY
         READY = True
 
-        print("bot ready")
+        print("> bot ready")
 
     @client.event
     async def on_message(msg):

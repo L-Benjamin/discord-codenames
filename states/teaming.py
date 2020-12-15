@@ -6,17 +6,15 @@ class Teaming(State):
     async def help(self, channel, user, args):        
         await channel.send((
             "Waiting for someone to start the game with `*start`. You can also change teams with "
-            "the command `*team change` to change or `*team switch` to switch role with your teammate.\n"
-            "Here is the current composition of the teams:\nRed team:\n```\n{}\n{}\n```Blue team:\n```\n{}\n{}\n```"
+            "the command `*team change` to change teams or `*team switch` to switch role with your team-mate.\n"
+            "Here is the current composition of the teams:\nRed team:\n{}Blue team:\n{}"
         ).format(
-            self.data.players[0].display_name,
-            self.data.players[1].display_name,
-            self.data.players[2].display_name,
-            self.data.players[3].display_name,
+            self.data.fmt_players([0, 1]),
+            self.data.fmt_players([2, 3]),
         ))
 
     async def start(self, channel, user, args):
-        if not user in self.data.players:
+        if not self.data.in_game(user):
             await channel.send("You are not even playing !")
             return
 
@@ -26,13 +24,13 @@ class Teaming(State):
         return new_state
 
     async def team(self, channel, user, args):
-        if not user in self.data.players:
+        if not self.data.in_game(user):
             await channel.send("You are not even playing !")
             return
 
         _USAGE = "correct usage is `*team (change|switch)`."
 
-        i = self.data.players.index(user)
+        i = self.data.index_of_player(user)
 
         if len(args) < 2:
             await channel.send("Not enough arguments to `*team`, {}".format(_USAGE))
@@ -45,7 +43,7 @@ class Teaming(State):
             await channel.send("Invalid argument to `*team`, {}".format(_USAGE))
             return
 
-        self.data.players[i], self.data.players[j] = self.data.players[j], self.data.players[i]
+        self.data.switch_players(i, j)
 
         await self.help(channel, None, None)
 

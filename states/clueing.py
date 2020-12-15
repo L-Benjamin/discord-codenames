@@ -2,17 +2,17 @@ from .state import State
 
 
 _USAGE = (
-    "`*clue xxx n` where `xxx` is your clue (a single word with no spaces) "
-    "and `n` is the number of words your team-mate will have to guess"
+    "`*clue xxx [n]` where `xxx` is your clue (a single word with no spaces) "
+    "and `n` (optional) is the number of words your team-mate should be able to guess"
 )
 
 class Clueing(State):
 
     async def clue(self, channel, user, args):
-        if not user in self.data.players:
+        if not self.data.in_game(user):
             await channel.send("You are not even playing !")
             return
-        elif user != self.data.playing():
+        elif user != self.data.get_playing():
             await channel.send("It's not your turn yet !")
             return
         elif len(args) != 3:
@@ -25,7 +25,7 @@ class Clueing(State):
             await channel.send("Not a valid number: `{}`, correct usage is {}.".format(args[2], _USAGE))
             return
 
-        ours, theirs = self.data.lists()
+        _, ours, theirs, _, _ = self.data.words_lists()
 
         if n > len(ours):
             await channel.send("That's too many guess ! You only need {} more words to win the game.".format(len(ours)))
@@ -36,10 +36,9 @@ class Clueing(State):
 
         # Here verify the clue does not break any rules, if needed
 
-        self.data.clue = args[1]
-        self.data.turn += 1
-        self.data.nguess = n
-        self.data.done_guess = False
+        self.data.set_clue(args[1])
+        self.data.set_done_guess(False)
+        self.data.next_turn()
         
         from .guessing import Guessing
         new_state = Guessing(self.data)
@@ -47,43 +46,41 @@ class Clueing(State):
         return new_state
     
     async def help(self, channel, user, args):
-        team = self.data.team_str()
-
         await channel.send((
             "This is {} team's turn, we are currently waiting for "
-            "{} to give a clue to {}, so he can make guesses.\n{}\n"
-            "Here is the available words list:\n{}\n"
+            "{} to give a clue to {}, so he can make guesses.\n{}"
+            "Here is the available words list:\n{}"
             "Do `*key` to get the list of words you need to make guess, "
             "or, if you are ready to give your clue, do {}."
         ).format(
-            team,
-            self.data.players[self.data.turn].mention,
-            self.data.players[self.data.turn + 1].display_name,
-            self.data.players_str(),
-            self.data.words_str(),
+            self.data.fmt_team_name(),
+            self.data.get_playing().mention,
+            self.data.get_next_playing(1).display_name,
+            self.data.fmt_teams(),
+            self.data.fmt_words(),
             _USAGE,
         ))
 
     async def key(self, channel, user, args):
-        if not user in self.data.players:
+        if not self.data.in_game(user):
             await channel.send("You are not even playing !")
             return
-        elif user != self.data.playing():
+        elif user != self.data.get_playing():
             await channel.send("It's not your turn yet !")
             return
 
-        ours, theirs = self.data.lists_str()
+        _, ours, theirs, gray, black = self.data.fmt_words_lists()
 
         await user.send((
-            "Here is the list of words you need to make your team-mate guess:\n{}\n "
-            "Here is the list of words the other team needs to guess:\n{}\n "
-            "Here is the list of words that won't give anyone any points:\n{}\n "
-            "Finally, here is the word that will make you lose if your team-mate guesses it:\n`{}`"
+            "Here is the list of words you need to make your team-mate guess:\n{}"
+            "Here is the list of words the other team needs to guess:\n{}"
+            "Here is the list of words that won't give anyone any points:\n{}"
+            "Finally, here is the word that will make you lose if your team-mate guesses it:\n{}"
         ).format(
             ours,
             theirs,
-            self.data.gray_words_str(),
-            self.data.black_word,
+            gray,
+            black,
         ))
 
         await channel.send("Sent the key to you, {}, go check your DMs.".format(user.display_name))

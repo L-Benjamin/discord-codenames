@@ -9,13 +9,13 @@ _USAGE = (
 class Guessing(State):
 
     async def guess(self, channel, user, args):
-        team = self.data.team_str()
-        ours, theirs = self.data.lists()
+        team = self.data.fmt_team_name()
+        all, ours, theirs, gray, black = self.data.words_lists()
 
-        if not user in self.data.players:
+        if not self.data.in_game(user):
             await channel.send("You are not even playing !")
             return
-        elif user != self.data.playing():
+        elif user != self.data.get_playing():
             await channel.send("It's not your turn yet !")
             return
         elif len(args) < 2:
@@ -26,37 +26,35 @@ class Guessing(State):
             return
 
         for guess in args[1:]:
-            if not guess in self.data.words:
+            if not guess in all:
                 await channel.send("`{}` is not a valid guess, it's not in the list !".format(guess))
             elif guess in ours:
                 ours.remove(guess)
-                self.data.words.remove(guess)
-                self.data.done_guess = True
-                self.data.nguess -= 1
+                all.remove(guess)
+                self.data.set_done_guess(True)
                 await channel.send("`{}` was one of your words, +1 for {} team !".format(guess, team))
             elif guess in theirs:
                 theirs.remove(guess)
-                self.data.words.remove(guess)
-                self.data.done_guess = True
+                all.remove(guess)
                 await channel.send("Unfortunately, `{}` was one of the other team's words, +1 for them ! Your turn is over.".format(guess))
-                await self.stop(channel, user, None)
-                break
-            elif guess in self.data.gray_words:
-                self.data.gray_words.remove(guess)
-                self.data.words.remove(guess)
-                self.data.done_guess = True
+                self.data.set_done_guess(True)
+                return await self.end(channel, user, None)
+            elif guess in gray:
+                gray.remove(guess)
+                all.remove(guess)
                 await channel.send("Unfortunately, `{}` was a gray word, your turn is over !".format(guess))
-                await self.stop(channel, user, None)
-                break
-            elif guess == self.data.black_word:
+                self.data.set_done_guess(True)
+                return await self.end(channel, user, None)
+            elif guess == black:
                 await channel.send((
-                    "Bad luck ! `{}` was the black word, {} team just lost the game."
+                    "Bad luck ! `{}` was the black word, {} team just lost the game. "
                     "Congratulations to {} and {} for winning the game !"
                 ).format(
                     guess, team,
-                    self.data.players[(self.data.turn + 1) % 4].display_name,
-                    self.data.players[(self.data.turn + 2) % 4].display_name,
+                    self.data.get_next_playing(1).display_name,
+                    self.data.get_next_playing(2).display_name,
                 ))
+
                 self.data.reset()
                 from .teaming import Teaming
                 new_state = Teaming(self.data)
@@ -69,9 +67,10 @@ class Guessing(State):
                 "The {} team won ! Congratulations to {} and {} for winning the game !"
             ).format(
                 team,
-                self.data.players[self.data.turn-1].display_name,
-                self.data.players[self.data.turn].display_name,
+                self.data.get_next_playing(3).display_name,
+                self.data.get_playing().display_name,
             ))
+            
             self.data.reset()
             from .teaming import Teaming
             new_state = Teaming(self.data)
@@ -81,17 +80,16 @@ class Guessing(State):
         await self.help(channel, None, None)
 
     async def end(self, channel, user, args):
-        if not user in self.data.players:
+        if not self.data.in_game(user):
             await channel.send("You are not even playing !")
             return
-        elif user != self.data.playing():
+        elif user != self.data.get_playing():
             await channel.send("It's not your turn yet !")
             return
 
         if self.data.done_guess:
             await channel.send("Next turn !")
-            self.data.turn += 1
-            self.data.turn %= 4
+            self.data.next_turn()
             from .clueing import Clueing
             new_state = Clueing(self.data)
             await new_state.help(channel, None, None)
@@ -100,21 +98,22 @@ class Guessing(State):
             await channel.send("You still haven't done a single guess !")
 
     async def help(self, channel, user, args):
-        team = self.data.team_str()
+        if self.data.has_done_guess():
+            hint = "Do `*end` to end your turn if you want to"
+        else:
+            hint = "You still need to make at least one guess"
 
         await channel.send((
             "This is {} team's turn, we are currently waiting for "
-            "{} to make a guess based off of {}'s clue, which was `{}`. "
-            "He said you can still do {} guesses. {}\n"
-            "Here is the available words list:\n{}\n"
-            "To make a guess, do {}."
+            "{} to make a guess based off of {}'s clue, which was `{}`. {}. "
+            "Here is the available words list:\n{}"
+            "To make a guess, do {}"
         ).format(
-            team,
-            self.data.players[self.data.turn].mention,
-            self.data.players[self.data.turn - 1].display_name,
-            self.data.clue,
-            self.data.nguess,
-            "Do `*end` to end your turn if you want to." if self.data.done_guess else "You still need to make at least one guess",
-            self.data.words_str(),
+            self.data.fmt_team_name(),
+            self.data.get_playing().mention,
+            self.data.get_next_playing(3).display_name,
+            self.data.get_clue(),
+            hint,
+            self.data.fmt_words(),
             _USAGE,
         ))
