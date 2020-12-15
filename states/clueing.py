@@ -2,8 +2,8 @@ from .state import State
 
 
 _USAGE = (
-    "`*clue xxx [n]` where `xxx` is your clue (a single word with no spaces) "
-    "and `n` (optional) is the number of words your team-mate should be able to guess"
+    "`*clue xxx n` where `xxx` is your clue (a single word with no spaces) "
+    "and `n` is the number of words your team-mate should be able to guess (only informative)"
 )
 
 class Clueing(State):
@@ -82,7 +82,5 @@ class Clueing(State):
             gray,
             black,
         ))
-
-        await channel.send("Sent the key to you, {}, go check your DMs.".format(user.display_name))
 
 

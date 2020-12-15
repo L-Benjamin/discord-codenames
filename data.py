@@ -70,6 +70,10 @@ class Data:
         self.players = []
         self.reset()
 
+    def add_player(self, player):
+        self.players += [player]
+        return len(self.players) == 4
+
     def reset(self):
         self.turn = choice([0, 2])
 
@@ -95,15 +99,33 @@ class Data:
     def fmt_team_name(self):
         return "red" if self.turn in [0, 1] else "blue"
 
-    def num_players(self):
-        return len(self.players)
-
     def fmt_players(self, idx):
         return "" if len(idx) == 0 else "```\n{}\n```".format("\n".join((self.players[i].display_name for i in idx)))
+    
+    def fmt_words(self):
+        return _words_str(self.words)
 
-    def add_player(self, player):
-        self.players += [player]
-        return len(self.players) == 4
+    def fmt_words_lists(self):
+        all = _words_str(self.words)
+        ours = _words_str(self.red_words)
+        theirs = _words_str(self.blue_words)
+        gray = _words_str(self.gray_words)
+        black = "`{}`".format(self.black_word) 
+
+        if self.turn in [2, 3]:
+            ours, theirs = theirs, ours
+
+        return (all, ours, theirs, gray, black)
+
+    def fmt_teams(self):
+        player = lambda i: "{} {}".format(">" if i == self.turn else " ", self.players[i].display_name)
+        return "Red team ({} words to go):```\n{}\n{}\n```Blue team ({} words to go):```\n{}\n{}\n```".format(
+            str(len(self.red_words)), player(0), player(1), 
+            str(len(self.blue_words)), player(2), player(3),
+        )
+
+    def num_players(self):
+        return len(self.players)
 
     def get_player(self, i):
         return self.players[i]
@@ -150,28 +172,6 @@ class Data:
             ours, theirs = theirs, ours
 
         return (self.words, ours, theirs, self.gray_words, self.black_word)
-
-    def fmt_words(self):
-        return _words_str(self.words)
-
-    def fmt_words_lists(self):
-        all = _words_str(self.words)
-        ours = _words_str(self.red_words)
-        theirs = _words_str(self.blue_words)
-        gray = _words_str(self.gray_words)
-        black = "`{}`".format(self.black_word) 
-
-        if self.turn in [2, 3]:
-            ours, theirs = theirs, ours
-
-        return (all, ours, theirs, gray, black)
-
-    def fmt_teams(self):
-        player = lambda i: "{} {}".format(">" if i == self.turn else " ", self.players[i].display_name)
-        return "Red team ({} words to go):```\n{}\n{}\n```Blue team ({} words to go):```\n{}\n{}\n```".format(
-            str(len(self.red_words)), player(0), player(1), 
-            str(len(self.blue_words)), player(2), player(3),
-        )
 
     def remove_player(self, player):
         self.players.remove(player)

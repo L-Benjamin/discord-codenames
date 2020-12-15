@@ -107,7 +107,7 @@ class Guessing(State):
             "This is {} team's turn, we are currently waiting for "
             "{} to make a guess based off of {}'s clue, which was `{}`. {}. "
             "Here is the available words list:\n{}"
-            "To make a guess, do {}"
+            "To make a guess, do {}."
         ).format(
             self.data.fmt_team_name(),
             self.data.get_playing().mention,
