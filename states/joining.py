@@ -1,6 +1,5 @@
-from discord import player
-from states.teaming import Teaming
 from .state import State
+
 
 class Joining(State):
     
@@ -19,6 +18,7 @@ class Joining(State):
     async def join(self, channel, user, args):
         self.data.players += [user]
         if len(self.data.players) == 4:
+            from .teaming import Teaming
             new_state = Teaming(self.data)
             await new_state.help(channel, user, args)
             return new_state

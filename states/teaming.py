@@ -1,5 +1,5 @@
-from states.clueing import Clueing
 from .state import State
+
 
 class Teaming(State):
     
@@ -20,6 +20,7 @@ class Teaming(State):
             await channel.send("You are not even playing !")
             return
 
+        from .clueing import Clueing
         new_state = Clueing(self.data)
         await new_state.help(channel, None, None)
         return new_state
@@ -29,19 +30,19 @@ class Teaming(State):
             await channel.send("You are not even playing !")
             return
 
-        USAGE = "correct usage is `*team (change|switch)`."
+        _USAGE = "correct usage is `*team (change|switch)`."
 
         i = self.data.players.index(user)
 
         if len(args) < 2:
-            await channel.send("Not enough arguments to `*team`, " + USAGE)
+            await channel.send("Not enough arguments to `*team`, {}".format(_USAGE))
             return
         elif args[1] == "change":
             j = (i + 2) % 4
         elif args[1] == "switch":
             j = i + 1 if i % 2 == 0 else i - 1
         else:
-            await channel.send("Invalid argument to `*team`, " + USAGE)
+            await channel.send("Invalid argument to `*team`, {}".format(_USAGE))
             return
 
         self.data.players[i], self.data.players[j] = self.data.players[j], self.data.players[i]

@@ -48,7 +48,7 @@ if __name__ == "__main__":
             return
 
         if not msg.guild:
-            await channel.send("You can't use any commands in DMs")
+            await channel.send("You can't use any commands in DMs.")
             return
 
         if len(args := content[1:].split(" ")) == 0:
@@ -61,6 +61,6 @@ if __name__ == "__main__":
             if newstate := await method(channel, user, args):
                 STATES[msg.guild] = newstate
         else:
-            await channel.send("Command not found, type `*help` to get a list of commands")
+            await channel.send("Command not found, type `*help` to get a list of commands.")
 
     client.run(token)

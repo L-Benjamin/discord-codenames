@@ -1,5 +1,5 @@
-from .guessing import Guessing
 from .state import State
+
 
 _USAGE = (
     "`*clue xxx n` where `xxx` is your clue (a single word with no spaces) "
@@ -16,13 +16,13 @@ class Clueing(State):
             await channel.send("It's not your turn yet !")
             return
         elif len(args) != 3:
-            await channel.send("Invalid number of arguments to clue, correct usage is {}".format(_USAGE))
+            await channel.send("Invalid number of arguments to `*clue`, correct usage is {}.".format(_USAGE))
             return
         
         try:
             n = int(args[2])
         except:
-            await channel.send("Not a valid number: `{}`, correct usage is ".format(args[2], _USAGE))
+            await channel.send("Not a valid number: `{}`, correct usage is {}.".format(args[2], _USAGE))
             return
 
         ours, theirs = self.data.lists()
@@ -37,22 +37,24 @@ class Clueing(State):
         # Here verify the clue does not break any rules, if needed
 
         self.data.clue = args[1]
-        self.data.nguess = n
         self.data.turn += 1
+        self.data.nguess = n
+        self.data.done_guess = False
         
+        from .guessing import Guessing
         new_state = Guessing(self.data)
         await new_state.help(channel, None, None)
         return new_state
     
     async def help(self, channel, user, args):
-        i = self.data.turn
-        team = "red" if self.data.turn == 0 else "blue"
+        team = self.data.team_str()
 
         await channel.send((
             "This is {} team's turn, we are currently waiting for "
             "{} to give a clue to {}, so he can make guesses.\n{}\n"
             "Here is the available words list:\n{}\n"
-            "Do `*key` to get the list of words you need to make guess, or do {}"
+            "Do `*key` to get the list of words you need to make guess, "
+            "or, if you are ready to give your clue, do {}."
         ).format(
             team,
             self.data.players[self.data.turn].mention,
