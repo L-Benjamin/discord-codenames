@@ -18,7 +18,7 @@ class Clueing(State):
         elif len(args) != 3:
             await channel.send("Invalid number of arguments to `*clue`, correct usage is {}.".format(_USAGE))
             return
-        
+
         try:
             n = int(args[2])
         except:

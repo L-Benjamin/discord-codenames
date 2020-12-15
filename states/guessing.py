@@ -63,7 +63,7 @@ class Guessing(State):
 
         if len(ours) == 0:
             await channel.send((
-                "That was the last word you needed to guess !"
+                "That was the last word you needed to guess ! "
                 "The {} team won ! Congratulations to {} and {} for winning the game !"
             ).format(
                 team,
