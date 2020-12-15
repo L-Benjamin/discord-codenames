@@ -12,7 +12,8 @@ Invite your bot to your server via the portal, the bot needs to be able to read 
 
 Finally, do `python3 bot.py` to launch the bot. Start a new game with `*new`, in the discord chat.
 
-# Details
+## Implementation details
 
+The code is entirely in Python for convenience reason, buit on top of the [discord.py](https://discordpy.readthedocs.io/en/latest/) api.
 
-
+The global architecture is very simple, a bunch of states are declared in `states/`, and all define classes that acts as the different states of the program. They all posses a field `data` that they pass from one state to another upon changing. In `bot.py`, any command the user types is parsed and it's name is searched among the methods of the current state, and then called automatically.
