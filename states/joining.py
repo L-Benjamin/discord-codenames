@@ -19,7 +19,7 @@ class Joining(State):
             await new_state.help(channel, user, args)
             return new_state
         else:
-            await self.help(channel, user, args)
+            await self.help(channel, None, None)
 
     async def quit(self, channel, user, args):
         if not self.data.is_in_game(user):
@@ -31,6 +31,6 @@ class Joining(State):
         if self.data.num_players() == 0:
             from .default import Default
             new_state = Default()
-            await new_state.help(channel, user, args)
+            await new_state.help(channel, None, None)
             return new_state
 

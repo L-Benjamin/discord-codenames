@@ -2,7 +2,7 @@
 
 In this repository, you'll find the source code for a discord bot able to play the board game [Code Names](https://codenames.game) inside of your discord server.
 
-# How to use
+## How to use
 
 You will need `python3` and the two followng python libraries: `discord` and `python-dotenv`.
 

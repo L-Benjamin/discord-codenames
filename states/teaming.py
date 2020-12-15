@@ -47,3 +47,16 @@ class Teaming(State):
 
         await self.help(channel, None, None)
 
+    async def quit(self, channel, user, args):
+        if not self.data.is_in_game(user):
+            await channel.send("You didn't even join !")
+            return
+
+        self.data.remove_player(user)
+        
+        if self.data.num_players() == 0:
+            from .teaming import Teaming
+            new_state = Teaming(self.data)
+            await new_state.help(channel, None, None)
+            return new_state
+

@@ -1,3 +1,7 @@
+# quit marche pas
+# Les espaces créent des exceptions
+# Win condition
+
 if __name__ == "__main__":
     
     from discord import Client, Game, Status

@@ -50,7 +50,8 @@ class Guessing(State):
                     "Bad luck ! `{}` was the black word, {} team just lost the game. "
                     "Congratulations to {} and {} for winning the game !"
                 ).format(
-                    guess, team,
+                    guess, 
+                    team,
                     self.data.get_next_playing(1).display_name,
                     self.data.get_next_playing(2).display_name,
                 ))
@@ -71,6 +72,21 @@ class Guessing(State):
                 self.data.get_playing().display_name,
             ))
             
+            self.data.reset()
+            from .teaming import Teaming
+            new_state = Teaming(self.data)
+            await new_state.help(channel, None, None)
+            return new_state
+        elif len(theirs) == 0:
+            await channel.send((
+                "That was the last of their words, {} team just lost the game"
+                "Congratulations to {} and {} for winning the game !"
+            ).format(
+                team,
+                self.data.get_next_playing(1).display_name,
+                self.data.get_next_playing(2).display_name,
+            ))
+
             self.data.reset()
             from .teaming import Teaming
             new_state = Teaming(self.data)
