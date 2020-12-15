@@ -9,6 +9,7 @@ class Teaming(State):
             "the command `*team change` to change teams or `*team switch` to switch role with your team-mate. "
             "Alternatively, do `*quit` if you want to quit the game.\n"
             "Here is the current composition of the teams:\n:red_circle: Red team:\n{}:blue_circle: Blue team:\n{}"
+            "*You can always do* `*reset` *to reset the bot*"
         ).format(
             self.data.fmt_players([0, 1]),
             self.data.fmt_players([2, 3]),

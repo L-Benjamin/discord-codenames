@@ -7,7 +7,8 @@ class Joining(State):
         await channel.send((
             "We are now ({}/4) players, waiting for more players to join :hugging:.\n{}"
             "Type `*join` to join the game. "
-            "Alternatively, do `*quit` if you want to quit the lobby."   
+            "Alternatively, do `*quit` if you want to quit the lobby.\n"
+            "*You can always do* `*reset` *to reset the bot*"
         ).format(
             self.data.num_players(), 
             self.data.fmt_players(range(self.data.num_players())),

@@ -51,7 +51,8 @@ class Clueing(State):
             "{} to give a clue to {}, so he can make guesses.\n{}"
             "Here is the available words list :book::\n{}"
             "Do `*key` :key: to get the list of words you need to make your team-mate guess, "
-            "or, if you are ready to give your clue, do {}."
+            "or, if you are ready to give your clue, do {}.\n"
+            "*You can always do* `*reset` *to reset the bot*"
         ).format(
             self.data.fmt_team_name(),
             self.data.get_playing().mention,
