@@ -78,16 +78,13 @@ class Data:
         self.turn = choice([0, 2])
 
         self.words = sample(WORDS, 25)
-
+        
         shuffle(self.words)
 
-        if self.turn == 0:
-            self.red_words = self.words[0:9]
-            self.blue_words = self.words[9:17]
-        else:
-            self.red_words = self.words[0:8]
-            self.blue_words = self.words[8:17]
-                 
+        p = 9 if self.turn == 0 else 8
+        self.red_words = self.words[0:p]
+        self.blue_words = self.words[p:17]
+
         self.gray_words = self.words[17:24]
         self.black_word = self.words[24]
 
@@ -97,7 +94,7 @@ class Data:
         self.done_guess = None
 
     def fmt_team_name(self):
-        return "red" if self.turn in [0, 1] else "blue"
+        return "red :red_circle:" if self.turn in [0, 1] else "blue :blue_circle:"
 
     def fmt_players(self, idx):
         return "" if len(idx) == 0 else "```\n{}\n```".format("\n".join((self.players[i].display_name for i in idx)))
@@ -105,23 +102,27 @@ class Data:
     def fmt_words(self):
         return _words_str(self.words)
 
-    def fmt_words_lists(self):
+    def fmt_words_lists(self, switch):
         all = _words_str(self.words)
         ours = _words_str(self.red_words)
         theirs = _words_str(self.blue_words)
         gray = _words_str(self.gray_words)
         black = "`{}`".format(self.black_word) 
 
-        if self.turn in [2, 3]:
+        if (self.turn in [2, 3]) ^ switch:
             ours, theirs = theirs, ours
 
         return (all, ours, theirs, gray, black)
 
     def fmt_teams(self):
         player = lambda i: "{} {}".format(">" if i == self.turn else " ", self.players[i].display_name)
-        return "Red team ({} words to go):```\n{}\n{}\n```Blue team ({} words to go):```\n{}\n{}\n```".format(
-            str(len(self.red_words)), player(0), player(1), 
-            str(len(self.blue_words)), player(2), player(3),
+        return ":red_circle: Red team ({} words to go):```\n{}\n{}\n```:blue_circle: Blue team ({} words to go):```\n{}\n{}\n```".format(
+            str(len(self.red_words)), 
+            player(0), 
+            player(1), 
+            str(len(self.blue_words)), 
+            player(2), 
+            player(3),
         )
 
     def num_players(self):

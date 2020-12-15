@@ -12,3 +12,7 @@ Invite your bot to your server via the portal, the bot needs to be able to read 
 
 Finally, do `python3 bot.py` to launch the bot. Start a new game with `*new`, in the discord chat.
 
+# Details
+
+
+

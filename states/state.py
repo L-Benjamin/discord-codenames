@@ -12,7 +12,7 @@ from data import Data
 
 class State:
 
-    def __init__(self, data = Data()):
+    def __init__(self, data):
         self.data = data
 
     async def reset(self, channel, user, args):
@@ -24,6 +24,6 @@ class State:
         else:
             await channel.send("Game reset.")
             from .default import Default
-            new_state = Default()
+            new_state = Default(Data())
             await new_state.help(channel, None, None)
             return new_state

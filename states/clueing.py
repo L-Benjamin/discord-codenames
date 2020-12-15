@@ -10,10 +10,10 @@ class Clueing(State):
 
     async def clue(self, channel, user, args):
         if not self.data.in_game(user):
-            await channel.send("You are not even playing !")
+            await channel.send("You are not even playing!")
             return
         elif user != self.data.get_playing():
-            await channel.send("It's not your turn yet !")
+            await channel.send("It's not your turn yet!")
             return
         elif len(args) != 3:
             await channel.send("Invalid number of arguments to `*clue`, correct usage is {}.".format(_USAGE))
@@ -28,10 +28,10 @@ class Clueing(State):
         _, ours, theirs, _, _ = self.data.words_lists()
 
         if n > len(ours):
-            await channel.send("That's too many guess ! You only need {} more words to win the game.".format(len(ours)))
+            await channel.send("That's too many guess! You only need {} more words to win the game.".format(len(ours)))
             return
         elif n < 1:
-            await channel.send("You need to ask for at least one guess !".format(len(ours)))
+            await channel.send("You need to ask for at least one guess!".format(len(ours)))
             return
 
         # Here verify the clue does not break any rules, if needed
@@ -49,8 +49,8 @@ class Clueing(State):
         await channel.send((
             "This is {} team's turn, we are currently waiting for "
             "{} to give a clue to {}, so he can make guesses.\n{}"
-            "Here is the available words list:\n{}"
-            "Do `*key` to get the list of words you need to make guess, "
+            "Here is the available words list :book::\n{}"
+            "Do `*key` :key: to get the list of words you need to make your team-mate guess, "
             "or, if you are ready to give your clue, do {}."
         ).format(
             self.data.fmt_team_name(),
@@ -63,19 +63,19 @@ class Clueing(State):
 
     async def key(self, channel, user, args):
         if not self.data.in_game(user):
-            await channel.send("You are not even playing !")
+            await channel.send("You are not even playing!")
             return
-        elif user != self.data.get_playing():
-            await channel.send("It's not your turn yet !")
+        elif not (idx := self.data.index_of_player(user)) in [0, 2]:
+            await channel.send("It's not your turn yet!")
             return
 
-        _, ours, theirs, gray, black = self.data.fmt_words_lists()
+        _, ours, theirs, gray, black = self.data.fmt_words_lists(idx == 2)
 
         await user.send((
-            "Here is the list of words you need to make your team-mate guess:\n{}"
-            "Here is the list of words the other team needs to guess:\n{}"
-            "Here is the list of words that won't give anyone any points:\n{}"
-            "Finally, here is the word that will make you lose if your team-mate guesses it:\n{}"
+            "Here is the list of words you need to make your team-mate guess :white_check_mark::\n{}"
+            "Here is the list of words the other team needs to guess :x::\n{}"
+            "Here is the list of words that won't give anyone any points :sleeping::\n{}"
+            "Finally, here is the word that will make you lose if your team-mate guesses it :skull_crossbones::\n{}"
         ).format(
             ours,
             theirs,

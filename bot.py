@@ -1,7 +1,3 @@
-# quit marche pas
-# Les espaces créent des exceptions
-# Win condition
-
 if __name__ == "__main__":
     
     from discord import Client, Game, Status
@@ -9,6 +5,7 @@ if __name__ == "__main__":
     from inspect import ismethod
     from os import getenv
 
+    from data import Data
     from states.default import Default
 
     STATES = {}
@@ -22,11 +19,11 @@ if __name__ == "__main__":
     @client.event
     async def on_ready():
         status = Status.online
-        activity = Game(name = "Code Names")
+        activity = Game(name = "Code Names (*help)")
 
         global STATES
         for guild in client.guilds:
-            STATES[guild] = Default()
+            STATES[guild] = Default(Data())
             await client.change_presence(status=status, activity=activity)
 
         global READY
@@ -61,10 +58,10 @@ if __name__ == "__main__":
         global STATES
         state = STATES[msg.guild]
 
-        if args[0][0] != "_" and args[0] in dir(state) and ismethod(method := getattr(state, args[0])):
+        if args[0] != "" and args[0][0] != "_" and args[0] in dir(state) and ismethod(method := getattr(state, args[0])):
             if newstate := await method(channel, user, args):
                 STATES[msg.guild] = newstate
         else:
-            await channel.send("Command not found, type `*help` to get a list of commands.")
+            await channel.send("Command does not exist or is not available for now :slight_frown:, type `*help` if you feel lost.")
 
     client.run(token)

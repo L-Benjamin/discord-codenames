@@ -5,8 +5,9 @@ class Joining(State):
     
     async def help(self, channel, user, args):
         await channel.send((
-            "We are now ({}/4) players, waiting for more players to join.\n"
-            "{}Type `*join` to join the game."
+            "We are now ({}/4) players, waiting for more players to join :hugging:.\n{}"
+            "Type `*join` to join the game. "
+            "Alternatively, do `*quit` if you want to quit the lobby."   
         ).format(
             self.data.num_players(), 
             self.data.fmt_players(range(self.data.num_players())),
@@ -22,8 +23,8 @@ class Joining(State):
             await self.help(channel, None, None)
 
     async def quit(self, channel, user, args):
-        if not self.data.is_in_game(user):
-            await channel.send("You didn't even join !")
+        if not self.data.in_game(user):
+            await channel.send("You didn't even join!")
             return
 
         self.data.remove_player(user)
@@ -33,4 +34,5 @@ class Joining(State):
             new_state = Default()
             await new_state.help(channel, None, None)
             return new_state
-
+        else:
+            await self.help(channel, None, None)
