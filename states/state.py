@@ -10,11 +10,14 @@
 from data import Data
 
 
+# Mother class of all other states
 class State:
 
+    # Create a new state with the given data
     def __init__(self, data):
         self.data = data
 
+    # Reset the game when called. Need confirmation for safety
     async def reset(self, channel, user, args):
         if len(args) < 2 or args[1] != "confirm":
             await channel.send((

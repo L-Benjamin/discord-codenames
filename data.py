@@ -1,5 +1,6 @@
 from random import choice, sample, shuffle
 
+# The list of words (french)
 WORDS = [
     "Visage", "Laser", "Marque", "Tambour", "Pouce", "Aile", "Courant", 
     "Mode", "Mort", "Ballon", "Feu", "Lettre", "Roi", "Tube", "Brique", 
@@ -50,6 +51,7 @@ WORDS = [
     "Ferme", "Membre", "Vie",
 ]
 
+# Convert a list of words into a padded text box with 5 columns
 def _words_str(words):
     if len(words) < 5:
         return "```\n{}\n```".format(" ".join((w for w in words)))
@@ -70,10 +72,12 @@ class Data:
         self.players = []
         self.reset()
 
+    # Add a new player and return True if there are 4 after
     def add_player(self, player):
         self.players += [player]
         return len(self.players) == 4
 
+    # Reset the game's state but not the player list
     def reset(self):
         self.turn = choice([0, 2])
 
@@ -93,15 +97,21 @@ class Data:
         self.clue = None
         self.done_guess = None
 
+    # Return the team name of the currently playing user
     def fmt_team_name(self):
         return "red :red_circle:" if self.turn in [0, 1] else "blue :blue_circle:"
 
+    # Return a formatted text box of all requested players, with idx a list of ids
+    # of the desired players
     def fmt_players(self, idx):
         return "" if len(idx) == 0 else "```\n{}\n```".format("\n".join((self.players[i].display_name for i in idx)))
     
+    # Return a formatted text box containing all words
     def fmt_words(self):
         return _words_str(self.words)
 
+    # Return a formatted text box containing all lists of words, ordered along
+    # the team of the currently playing user and the switch argument
     def fmt_words_lists(self, switch):
         all = _words_str(self.words)
         ours = _words_str(self.red_words)
@@ -114,57 +124,68 @@ class Data:
 
         return (all, ours, theirs, gray, black)
 
+    # Return a formatted text box with the compositions of the teams
     def fmt_teams(self):
-        player = lambda i: "{} {}".format(">" if i == self.turn else " ", self.players[i].display_name)
+        fmt = lambda i: "{} {}".format(">" if i == self.turn else " ", self.players[i].display_name)
         return ":red_circle: Red team ({} words to go):```\n{}\n{}\n```:blue_circle: Blue team ({} words to go):```\n{}\n{}\n```".format(
             str(len(self.red_words)), 
-            player(0), 
-            player(1), 
+            fmt(0), 
+            fmt(1), 
             str(len(self.blue_words)), 
-            player(2), 
-            player(3),
+            fmt(2), 
+            fmt(3),
         )
 
+    # Return the number of players
     def num_players(self):
         return len(self.players)
 
+    # Return the player corresponding to that id
     def get_player(self, i):
         return self.players[i]
 
+    # Return True if the player is actually in the game
     def in_game(self, user):
         return user in self.players
 
+    # Return the index of that palyer
     def index_of_player(self, player):
         return self.players.index(player)
 
+    # Return two players in the list by their ids
     def switch_players(self, i, j):
         self.players[i], self.players[j] = self.players[j], self.players[i]
 
+    # Return the player whose turn it is
     def get_playing(self):
         return self.players[self.turn]
 
+    # Return the user that will be playing in i turns
     def get_next_playing(self, i):
         return self.players[(self.turn + i) % 4]
 
+    # Advances to the next turn
     def next_turn(self):
         self.turn += 1
         self.turn %= 4
 
+    # Sets the clue
     def set_clue(self, clue):
         self.clue = clue
 
+    # Gets the clue
     def get_clue(self):
         return self.clue
 
+    # Sets the boolean done_guess
     def set_done_guess(self, done_guess):
         self.done_guess = done_guess
 
+    # Return the boolean done_guess
     def has_done_guess(self):
         return self.done_guess
 
-    def get_words(self):
-        return self.words
-
+    # Return the words list as they are, ordered along the team currently playing
     def words_lists(self):
         ours = self.red_words
         theirs = self.blue_words
@@ -174,5 +195,6 @@ class Data:
 
         return (self.words, ours, theirs, self.gray_words, self.black_word)
 
+    # Remove a player from the list
     def remove_player(self, player):
         self.players.remove(player)

@@ -11,9 +11,11 @@ if __name__ == "__main__":
     STATES = {}
     READY = False
 
+    # Load discord token from .env file
     load_dotenv()
     token = getenv("DISCORD_TOKEN")
 
+    # Create the bot
     client = Client()
 
     @client.event
@@ -23,13 +25,17 @@ if __name__ == "__main__":
 
         global STATES
         for guild in client.guilds:
+            # Initialize server's state
             STATES[guild] = Default(Data())
+            # Set bot's status
             await client.change_presence(status=status, activity=activity)
 
+        # Set bot ready to start operating
         global READY
         READY = True
 
-        print("> bot ready")
+        # Log
+        print("bot ready")
 
     @client.event
     async def on_message(msg):
@@ -37,31 +43,37 @@ if __name__ == "__main__":
         content = msg.content
         user = msg.author
 
-        if user == client.user:
+        # If msg comes from the bot or does not start with a *, do nothing
+        if user == client.user or content[0] != "*":
             return
 
-        if len(content) < 2 or content[0] != "*":
-            return
-
+        # If bot is not ready yet, ask for more time
         global READY
         if not READY:
             await channel.send("I am not ready yet, wait a bit more please!")
             return
 
+        # If message was sent from a private channel
         if not msg.guild:
             await channel.send("You can't use any commands in DMs.")
             return
 
+        # Parse msg into a list, returning if the list is empty
         if len(args := content[1:].split(" ")) == 0:
             return
 
+        # Get the state corresponding to that server
         global STATES
         state = STATES[msg.guild]
 
+        # Search for a method that does not start with an underscore in the state object, if it
+        # exist and is a method, invoke it with the channel the msg comes, it's sender and the
+        # parsed arguments
         if args[0] != "" and args[0][0] != "_" and args[0] in dir(state) and ismethod(method := getattr(state, args[0])):
             if newstate := await method(channel, user, args):
                 STATES[msg.guild] = newstate
         else:
             await channel.send("Command does not exist or is not available for now :slight_frown:, type `*help` if you feel lost.")
 
+    # Launch the bot
     client.run(token)

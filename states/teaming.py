@@ -1,8 +1,10 @@
 from .state import State
 
 
+# Handle when there are 4 players, to allow them to form teams
 class Teaming(State):
     
+    # Display help
     async def help(self, channel, user, args):        
         await channel.send((
             "Waiting for someone to start :checkered_flag: the game with `*start`. You can also change teams with "
@@ -15,6 +17,7 @@ class Teaming(State):
             self.data.fmt_players([2, 3]),
         ))
 
+    # Quit the game when already joined
     async def quit(self, channel, user, args):
         if not self.data.in_game(user):
             await channel.send("You didn't even join!")
@@ -27,6 +30,7 @@ class Teaming(State):
         await new_state.help(channel, None, None)
         return new_state
 
+    # Start the game when teams are done
     async def start(self, channel, user, args):
         if not self.data.in_game(user):
             await channel.send("You are not even playing!")
@@ -37,6 +41,7 @@ class Teaming(State):
         await new_state.help(channel, None, None)
         return new_state
 
+    # Change teams
     async def team(self, channel, user, args):
         if not self.data.in_game(user):
             await channel.send("You are not even playing!")

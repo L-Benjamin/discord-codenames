@@ -1,8 +1,10 @@
 from .state import State
 
 
+# Handle players joining until there are 4
 class Joining(State):
     
+    # Display help
     async def help(self, channel, user, args):
         await channel.send((
             "We are now ({}/4) players, waiting for more players to join :hugging:.\n{}"
@@ -14,6 +16,7 @@ class Joining(State):
             self.data.fmt_players(range(self.data.num_players())),
         ))
 
+    # Joins a new player into the game
     async def join(self, channel, user, args):
         if self.data.add_player(user):
             from .teaming import Teaming
@@ -23,6 +26,7 @@ class Joining(State):
         else:
             await self.help(channel, None, None)
 
+    # Quit the game when already joined
     async def quit(self, channel, user, args):
         if not self.data.in_game(user):
             await channel.send("You didn't even join!")

@@ -6,8 +6,29 @@ _USAGE = (
     "(words with no spaces), in order. They will be treated from leftmost to rightmost"
 )
 
+# Handle the guessing phase of the game
 class Guessing(State):
 
+    # End self's turn
+    async def end(self, channel, user, args):
+        if not self.data.in_game(user):
+            await channel.send("You are not even playing!")
+            return
+        elif user != self.data.get_playing():
+            await channel.send("It's not your turn yet!")
+            return
+
+        if self.data.done_guess:
+            await channel.send("Next turn!")
+            self.data.next_turn()
+            from .clueing import Clueing
+            new_state = Clueing(self.data)
+            await new_state.help(channel, None, None)
+            return new_state
+        else:
+            await channel.send("You still haven't done a single guess! You need at least one.")
+
+    # Make a guess about a word
     async def guess(self, channel, user, args):
         team = self.data.fmt_team_name()
         all, ours, theirs, gray, black = self.data.words_lists()
@@ -95,24 +116,7 @@ class Guessing(State):
         
         await self.help(channel, None, None)
 
-    async def end(self, channel, user, args):
-        if not self.data.in_game(user):
-            await channel.send("You are not even playing!")
-            return
-        elif user != self.data.get_playing():
-            await channel.send("It's not your turn yet!")
-            return
-
-        if self.data.done_guess:
-            await channel.send("Next turn!")
-            self.data.next_turn()
-            from .clueing import Clueing
-            new_state = Clueing(self.data)
-            await new_state.help(channel, None, None)
-            return new_state
-        else:
-            await channel.send("You still haven't done a single guess!")
-
+    # Display help
     async def help(self, channel, user, args):
         if self.data.has_done_guess():
             hint = "Do `*end` to end your turn if you want to"

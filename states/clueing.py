@@ -6,8 +6,10 @@ _USAGE = (
     "and `n` is the number of words your team-mate should be able to guess (only informative)"
 )
 
+# Handle the phase of the game when you are thinking about the clue you want to give
 class Clueing(State):
 
+    # Give a clue to your team-mate
     async def clue(self, channel, user, args):
         if not self.data.in_game(user):
             await channel.send("You are not even playing!")
@@ -25,7 +27,7 @@ class Clueing(State):
             await channel.send("Not a valid number: `{}`, correct usage is {}.".format(args[2], _USAGE))
             return
 
-        _, ours, theirs, _, _ = self.data.words_lists()
+        _, ours, _, _, _ = self.data.words_lists()
 
         if n > len(ours):
             await channel.send("That's too many guess! You only need {} more words to win the game.".format(len(ours)))
@@ -45,6 +47,7 @@ class Clueing(State):
         await new_state.help(channel, None, None)
         return new_state
     
+    # Display help
     async def help(self, channel, user, args):
         await channel.send((
             "This is {} team's turn, we are currently waiting for "
@@ -62,6 +65,7 @@ class Clueing(State):
             _USAGE,
         ))
 
+    # Send in private the informations you need to know in order to give a good clue
     async def key(self, channel, user, args):
         if not self.data.in_game(user):
             await channel.send("You are not even playing!")
