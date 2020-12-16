@@ -71,7 +71,7 @@ class Clueing(State):
             await channel.send("You are not even playing!")
             return
         elif not (idx := self.data.index_of_player(user)) in [0, 2]:
-            await channel.send("It's not your turn yet!")
+            await channel.send("You do not have access to the key!")
             return
 
         _, ours, theirs, gray, black = self.data.fmt_words_lists(idx == 2)

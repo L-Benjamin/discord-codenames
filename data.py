@@ -119,7 +119,7 @@ class Data:
         gray = _words_str(self.gray_words)
         black = "`{}`".format(self.black_word) 
 
-        if (self.turn in [2, 3]) ^ switch:
+        if switch:
             ours, theirs = theirs, ours
 
         return (all, ours, theirs, gray, black)
